@@ -3,13 +3,19 @@ set -e;
 
 ipv4Regex="((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
 
-proxy="true"
+proxy="false"
 
 # DSM Config
 username="$1"
 password="$2"
 hostname="$3"
 ipAddr="$4"
+
+wanIP=$(curl -s http://members.3322.org/dyndns/getip)
+
+if [[ $wanIP =~ $ipv4Regex ]] && [ "$wanIP" != "$ipAddr" ]; then
+    ipAddr="$wanIP"
+fi
 
 if [[ $ipAddr =~ $ipv4Regex ]]; then
     recordType="A";
