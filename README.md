@@ -1,56 +1,55 @@
-# Synology Cloudflare DDNS Script 📜
+# Synology Cloudflare DDNS 脚本 📜
 
-The is a script to be used to add [Cloudflare](https://www.cloudflare.com/) as a DDNS to [Synology](https://www.synology.com/) NAS. The script used an updated API, Cloudflare API v4.
+这个脚本是用来把 [Cloudflare](https://www.cloudflare.com/) 作为 DDNS 添加到 [群晖](https://www.synology.com/) NAS 上的。脚本使用了 Cloudflare API v4。
 
-## How to use
+## 如何使用
 
-### Access Synology via SSH
+### 通过 SSH 访问 NAS
 
-1. Login to your DSM
-2. Go to Control Panel > Terminal & SNMP > Enable SSH service
-3. Use your client to access Synology via SSH.
-4. Use your Synology admin account to connect.
+1. 登录到你的 DSM
+2. 转到 控制面板 > 终端机和 SNMP > 启动 SSH 服务
+3. 使用你的客户端通过 SSH 访问 NAS。
+4. 使用你的 NAS 管理员帐户进行连接。
 
-### Run commands in Synology
+### 在 NAS 中运行命令
 
-1. Download `cloudflareddns.sh` from this repository to `/sbin/cloudflareddns.sh`
-
-```
-wget https://raw.githubusercontent.com/joshuaavalon/SynologyCloudflareDDNS/master/cloudflareddns.sh -O /sbin/cloudflareddns.sh
-```
-
-It is not a must, you can put I whatever you want. If you put the script in other name or path, make sure you use the right path.
-
-2. Give others execute permission
+1. 从本仓库下载 `cloudflareddns.sh` 到 `/usr/syno/bin/ddns/cloudflareddns.sh`
 
 ```
-chmod +x /sbin/cloudflareddns.sh
+wget https://raw.githubusercontent.com/oXnMe/SynologyCloudflareDDNS/master/cloudflareddns.sh -O /usr/syno/bin/ddns/cloudflareddns.sh
 ```
 
-3. Add `cloudflareddns.sh` to Synology
+2. 赋予执行权限
 
 ```
-cat >> /etc.defaults/ddns_provider.conf << 'EOF'
-[Cloudflare]
-        modulepath=/sbin/cloudflareddns.sh
-        queryurl=https://www.cloudflare.com
-        website=https://www.cloudflare.com
-E*.
+chmod +x /usr/syno/bin/ddns/cloudflareddns.sh
 ```
 
-`queryurl` does not matter because we are going to use our script but it is needed.
+3. 添加 `cloudflareddns.sh` 到 DDNS 列表
 
-### Get Cloudflare parameters
+由于 DSM 7.0 的改动，需要先转到 控制面板 > 外部访问 > DDNS 中自定义供应商如下：
+服务供应商 `Cloudflare`，Query URL `https://www.cloudflare.com`
+再修改配置文件：
+`vi /etc/ddns_provider.conf`
+把 `[USER_Cloudflare]` 下的 `modulepath=DynDNS` 修改为 `modulepath=/usr/syno/bin/ddns/cloudflare.sh`
 
-1. Go to your domain overview page and copy your zone ID.
-2. Go to your profile > **API Tokens** > **Create Token**. It should have the permissions of `Zone > DNS > Edit`. Copy the api token.
+### 获取 Cloudflare 参数
 
-### Setup DDNS
+1. 转到 Cloudflare 域名概览页面复制区域 ID。
+2. 转到 我的个人资料 > **API 令牌** > **创建令牌**，需要 `区域 > DNS > 编辑` 权限，复制 API 令牌。
 
-1. Login to your DSM
-2. Go to Control Panel > External Access > DDNS > Add
-3. Enter the following:
-   - Service provider: `Cloudflare`
-   - Hostname: `www.example.com`
-   - Username/Email: `<Zone ID>`
-   - Password Key: `<API Token>`
+### 设置 DDNS
+
+1. 登录到你的 DSM
+2. 转到 控制面板 > 外部访问 > DDNS 新增
+3. 输入以下内容：
+   - 服务供应商：`*Cloudflare`
+   - 主机名称：`www.example.com`
+   - 用户名/电子邮件：`<区域 ID>`
+   - 密码/密钥：`<API 令牌>`
+
+### 关于跟原版的区别
+
+由于在路由上配置了透明代理，而群晖的 IP 检测服务时不时会抽风，导致获取公网 IP 会获取到代理的 IP，所以在脚本里额外加了一层公网 IP 的判断。
+
+在升级到 DSM 7.0 之后，按照之前的修改方法并不会在 DDNS 的服务商列表中看到添加的 Cloudflare，所以在说明中修改为我尝试后可用的方法。
