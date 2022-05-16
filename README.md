@@ -31,7 +31,7 @@ chmod +x /usr/syno/bin/ddns/cloudflareddns.sh
 服务供应商 `Cloudflare`，Query URL `https://www.cloudflare.com`
 再修改配置文件：
 `vi /etc/ddns_provider.conf`
-把 `[USER_Cloudflare]` 下的 `modulepath=DynDNS` 修改为 `modulepath=/usr/syno/bin/ddns/cloudflare.sh`
+把 `[USER_Cloudflare]` 下的 `modulepath=DynDNS` 修改为 `modulepath=/usr/syno/bin/ddns/cloudflareddns.sh`
 
 ### 获取 Cloudflare 参数
 
